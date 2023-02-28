@@ -1,12 +1,8 @@
----
-export interface Props {
-	title: string;
-	body: string;
-	href: string;
-}
-
-const { href, title, body } = Astro.props;
----
+<script lang="ts">
+	export let href: string;
+	export let title: string;
+	export let body: string;
+</script>
 
 <li class="link-card">
 	<a href={href}>
@@ -19,6 +15,7 @@ const { href, title, body } = Astro.props;
 		</p>
 	</a>
 </li>
+
 <style>
 	.link-card {
 		list-style: none;

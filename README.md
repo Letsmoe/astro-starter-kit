@@ -1,55 +1,39 @@
-# Astro Starter Kit: Basics
+# Astro Starter Kit
 
-```
-npm create astro@latest -- --template basics
-```
+Willkommen zu einem Astro Starter Kit. Folgende Bibliotheken sind vorkonfiguriert:
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+## [Cypress](https://www.cypress.io/)
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Zum durchführen von e2e Tests. Test-Dateien werden im `/cypress/e2e/` Ordner gespeichert. Zum durchführen einfach:
 
-![basics](https://user-images.githubusercontent.com/4677417/186188965-73453154-fdec-4d6b-9c34-cb35c248ae5b.png)
-
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── components/
-│   │   └── Card.astro
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
+```sh
+pnpm run test:e2e
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+ausführen.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## [Vitest](https://vitest.dev/)
 
-Any static assets, like images, can be placed in the `public/` directory.
+Zum durchführen von unit-tests. Dateien werden mit der Dateiendung `.test.ts` (nicht `.spec.ts`) im `/test` Ordner gespeichert.
 
-## 🧞 Commands
+```sh
+pnpm run test:unit
+```
 
-All commands are run from the root of the project, from a terminal:
+## [Astro](https://astro.build/)
 
-| Command                | Action                                           |
-| :--------------------- | :----------------------------------------------- |
-| `npm install`          | Installs dependencies                            |
-| `npm run dev`          | Starts local dev server at `localhost:3000`      |
-| `npm run build`        | Build your production site to `./dist/`          |
-| `npm run preview`      | Preview your build locally, before deploying     |
-| `npm run astro ...`    | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro --help` | Get help using the Astro CLI                     |
+Astro wird als Build-tool benötigt, folgende Befehle werden unterstützt:
 
-## 👀 Want to learn more?
+```sh
+pnpm run build # Zum Bauen der Applikation
+pnpm run dev # Zum entwickeln auf einem Lokalen Server.
+pnpm run preview # Zum Anschauen der fertigen Applikation vor dem `build` Schritt
+```
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+## [TailwindCSS](https://tailwindcss.com/)
+
+Tailwind für das stylen von Elementen. Einige Brand-colors sind bereits vordefiniert.
+
+## [Svelte](https://svelte.dev/)
+
+Alle reaktiven Komponenten sind in Svelte geschrieben. Für eine Einstiegshilfe, schau dich auf der Website von [Svelte](https://svelte.dev/) um.
