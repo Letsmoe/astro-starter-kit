@@ -1,0 +1,21 @@
+---
+import { query } from "../../database";
+import Layout from "../../layouts/Layout.astro";
+
+const { id } = Astro.params
+const result = await query(`SELECT * FROM posts WHERE id = $1`, [id]);
+const row = result.rows[0]
+---
+
+<Layout title="Post">
+	<main>
+		<h1>{row.title}</h1>
+		<article set:html={row.body}></article>
+	</main>
+</Layout>
+
+<style>
+	h1 {
+		font-size: 3em;
+	}
+</style>
