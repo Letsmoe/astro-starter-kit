@@ -1,0 +1,16 @@
+---
+import Sidebar from "../components/Sidebar.astro";
+import Switch from "../components/Switch.svelte";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Settings">
+	<Sidebar active="/settings"></Sidebar>
+	<main class="w-full border rounded-lg bg-white markdown-body p-6">
+		<h1>Settings</h1>
+		<p>Here, you can adjust your experience with StackUnderflow, if you want to have more customization, consider writing an issue report or create a pull request.</p>
+
+		<h2>Theme</h2>
+		<Switch active={false} text={"Toggle dark mode"}></Switch>
+	</main>
+</Layout>

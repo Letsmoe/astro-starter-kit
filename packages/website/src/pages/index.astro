@@ -2,28 +2,29 @@
 import Layout from "../layouts/Layout.astro";
 import { query } from "../database";
 import PostView from "../components/PostView.svelte";
+import Sidebar from "../components/Sidebar.astro";
+import Pagination from "../components/Pagination.svelte";
 
-const result = await query("SELECT * FROM posts ORDER BY ViewCount DESC");
+const q = Astro.url.searchParams.get("q") || "";
+const offset = parseInt(Astro.url.searchParams.get("o") || "0");
+const limit = parseInt(Astro.url.searchParams.get("l") || "25");
+
+let result;
+if (q) {
+	result = await query("SELECT * FROM posts WHERE title IS NOT NULL AND title LIKE $1 ORDER BY ViewCount DESC LIMIT $2 OFFSET $3", [
+		"%" + q + "%"
+	,limit, offset * limit]);
+} else {
+	result = await query("SELECT * FROM posts WHERE title IS NOT NULL ORDER BY ViewCount DESC LIMIT $1 OFFSET $2", [limit, offset * limit]);
+}
+
+
 ---
 
 <Layout title="Welcome to Astro.">
-	<main>
-		<h1>Posts</h1>
-		<ul>
-			<PostView posts={result.rows}></PostView>
-		</ul>
-	</main>
+	<Sidebar active="/"></Sidebar>
+	<ul>
+		<PostView posts={result.rows}></PostView>
+		<Pagination offset={offset} limit={limit} query={q}></Pagination>
+	</ul>
 </Layout>
-
-<style>
-	main {
-		margin: auto;
-		padding: 1.5rem;
-		max-width: 60ch;
-	}
-	h1 {
-		font-size: 3rem;
-		font-weight: 800;
-		margin: 0;
-	}
-</style>
