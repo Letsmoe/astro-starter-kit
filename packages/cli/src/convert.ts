@@ -4,11 +4,11 @@ import * as path from "path"
 import * as fs from "fs"
 import * as cliProgress from "cli-progress";
 import { MappedDatabase } from "./db-map.js";
-import pkg from "pg"
-const { Pool } = pkg;
-import format from "pg-format";
-
-const client = new Pool({
+import * as pgPromise from "pg-promise";
+const pgp: pgPromise.IMain = pgPromise({
+	capSQL: true,
+});
+const client = pgp({
 	database: "stack-exchange-offline",
 	host: "localhost",
 	password: "Lateman47,43,s54",
@@ -37,8 +37,8 @@ if (fs.existsSync(path.join(__dirname, "db/main.db"))) {
 	// Create the tables for stackoverflow.
 	let expected = 0, inserted = 0, errors = 0;
 	//await client.query("BEGIN");
-	const sql = fs.readFileSync(path.join(__dirname, "../schema/full.sql"), "utf-8");
-	//await client.query(sql);
+	const sql = fs.readFileSync(path.join(__dirname, "./schema/full.sql"), "utf-8");
+	await client.query(sql);
 	console.log("Created schema.")
 	// Continue, all tables are created.
 	// Loop through all entries and insert them based on their name.
@@ -58,6 +58,8 @@ if (fs.existsSync(path.join(__dirname, "db/main.db"))) {
 		expected += rows.length;
 	}
 
+	await client.query("SET session_replication_role = 'replica';");
+
 	const bar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 	bar.start(expected, inserted)
 	for (const {rows, table} of statements) {
@@ -71,8 +73,16 @@ if (fs.existsSync(path.join(__dirname, "db/main.db"))) {
 				console.log("Finished!");
 				bar.update(inserted);
 				bar.stop();
-				await client.query("SET session_replication_role = 'origin';");
-				client.end();
+				if (errors == 0) {
+					await client.query("SET session_replication_role = 'origin';");
+					//await db.query("COMMIT");
+				} else {
+					console.log("Something went wrong!")
+					//await client.query("ROLLBACK")
+				}
+				
+				client.$pool.end;
+				process.exit(0)
 			}
 		})
 	}
@@ -84,38 +94,34 @@ type Row = {
 }
 
 async function insertRows(rows: Row[], table: string) {
-	const requiredColumns = MappedDatabase[table].required.map(x => x.toLowerCase());
-	const optionalColumns = MappedDatabase[table].optional.map(x => x.toLowerCase());
+	const requiredColumns = MappedDatabase[table].required;
+	const optionalColumns = MappedDatabase[table].optional;
 	const columns = requiredColumns.concat(optionalColumns);
 	// Insert multiple rows at a time.
+	const cs = new pgp.helpers.ColumnSet(columns, { table })
 	const values = [];
 
 	rowLoop: for (const row of rows) {
-		let rowValues = [];
-		const preValues = Object.values(row);
-		const keys = Object.keys(row).map(x => x.toLowerCase());
+		const keys = Object.keys(row);
 		for (const column of requiredColumns) {
 			let index = keys.indexOf(column);
 			if (index == -1) {
 				console.log(`Missing required field: ${table}.${column}`);
 				continue rowLoop;
 			}
-			rowValues.push(preValues[index])
 		}
 		for (const column of optionalColumns) {
 			let index = keys.indexOf(column);
 			if (index == -1) {
 				row[column] = null;
 			}
-			rowValues.push(preValues[index])
 		}
-		values.push(rowValues);
+		values.push(row);
 	}
 
 	try {
-		await client.query("SET session_replication_role = 'replica';");
-		const query = format(`INSERT INTO ${table} (${columns.join(",")}) VALUES %L`, values);
-		return await client.query(query);
+		const query = pgp.helpers.insert(values, cs);
+		return await client.none(query.replace(/"/g, " "))
 	} catch(err: any) {
 		console.log(err.message);
 		console.log("Table: " + table);
